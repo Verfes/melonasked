@@ -179,7 +179,7 @@ void CPlayers::RenderHookCollLine(
 			}
 			Graphics()->TextureClear();
 			vec2 InitPos = Position;
-			vec2 FinishPos = InitPos + ExDirection * (m_pClient->m_aTuning[g_Config.m_ClDummy].m_HookLength - 42.0f);
+			vec2 FinishPos = InitPos + ExDirection * (m_pClient->m_aTuning[g_Config.m_ClDummy].m_HookLength - 18.0f);
 
 			if(g_Config.m_ClHookCollSize > 0)
 				Graphics()->QuadsBegin();
@@ -193,50 +193,48 @@ void CPlayers::RenderHookCollLine(
 
 			bool DoBreak = false;
 
-			do
-			{
-				OldPos = NewPos;
-				NewPos = OldPos + ExDirection * m_pClient->m_aTuning[g_Config.m_ClDummy].m_HookFireSpeed;
-
-				if(distance(InitPos, NewPos) > m_pClient->m_aTuning[g_Config.m_ClDummy].m_HookLength)
-				{
-					NewPos = InitPos + normalize(NewPos - InitPos) * m_pClient->m_aTuning[g_Config.m_ClDummy].m_HookLength;
-					DoBreak = true;
-				}
-
-				int Hit = Collision()->IntersectLineTeleHook(OldPos, NewPos, &FinishPos, 0x0);
-
-				if(!DoBreak && Hit)
-				{
-					if(Hit != TILE_NOHOOK)
-					{
-						HookCollColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorHookableColl));
-					}
-				}
-
-				if(m_pClient->IntersectCharacter(OldPos, FinishPos, FinishPos, ClientID) != -1)
-				{
-					HookCollColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorTeeColl));
-					break;
-				}
-
-				if(Hit)
-					break;
-
-				NewPos.x = round_to_int(NewPos.x);
-				NewPos.y = round_to_int(NewPos.y);
-
-				if(OldPos == NewPos)
-					break;
-
-				ExDirection.x = round_to_int(ExDirection.x * 256.0f) / 256.0f;
-				ExDirection.y = round_to_int(ExDirection.y * 256.0f) / 256.0f;
-			} while(!DoBreak);
-
 			if(AlwaysRenderHookColl && RenderHookCollPlayer)
 			{
-				// invert the hook coll colors when using cl_show_hook_coll_always and +showhookcoll is pressed
-				HookCollColor = color_invert(HookCollColor);
+				do
+				{
+					OldPos = NewPos;
+					NewPos = OldPos + ExDirection * m_pClient->m_aTuning[g_Config.m_ClDummy].m_HookFireSpeed;
+
+					if(distance(InitPos, NewPos) > m_pClient->m_aTuning[g_Config.m_ClDummy].m_HookLength)
+					{
+						NewPos = InitPos + normalize(NewPos - InitPos) * m_pClient->m_aTuning[g_Config.m_ClDummy].m_HookLength;
+						DoBreak = true;
+					}
+
+					int Hit = Collision()->IntersectLineTeleHook(OldPos, NewPos, &FinishPos, 0x0);
+
+					if(!DoBreak && Hit)
+					{
+						if(Hit != TILE_NOHOOK)
+						{
+							HookCollColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorHookableColl));
+						}
+					}
+
+					if(m_pClient->IntersectCharacter(OldPos, FinishPos, FinishPos, ClientID) != -1)
+					{
+						HookCollColor = color_cast<ColorRGBA>(ColorHSLA(g_Config.m_ClHookCollColorTeeColl));
+						break;
+					}
+
+					if(Hit)
+						break;
+
+					NewPos.x = round_to_int(NewPos.x);
+					NewPos.y = round_to_int(NewPos.y);
+
+					if(OldPos == NewPos)
+						break;
+
+					ExDirection.x = round_to_int(ExDirection.x * 256.0f) / 256.0f;
+					ExDirection.y = round_to_int(ExDirection.y * 256.0f) / 256.0f;
+				} while(!DoBreak);
+
 			}
 			Graphics()->SetColor(HookCollColor.WithAlpha(Alpha));
 			if(g_Config.m_ClHookCollSize > 0)

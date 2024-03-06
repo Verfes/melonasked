@@ -176,7 +176,7 @@ void CRenderTools::GetRenderTeeAnimScaleAndBaseSize(const CTeeRenderInfo *pInfo,
 
 void CRenderTools::GetRenderTeeBodyScale(float BaseSize, float &BodyScale)
 {
-	BodyScale = g_Config.m_ClFatSkins ? BaseSize * 1.3f : BaseSize;
+	BodyScale = g_Config.m_ClFatSkins ? BaseSize * 0.78f : BaseSize;
 	BodyScale /= 64.0f;
 }
 
@@ -208,10 +208,16 @@ void CRenderTools::GetRenderTeeFeetSize(const CAnimState *pAnim, const CTeeRende
 	float FeetScaleWidth, FeetScaleHeight;
 	GetRenderTeeFeetScale(BaseSize, FeetScaleWidth, FeetScaleHeight);
 
-	Width = pInfo->m_SkinMetrics.m_Feet.WidthNormalized() * 64.0f * FeetScaleWidth;
-	Height = pInfo->m_SkinMetrics.m_Feet.HeightNormalized() * 32.0f * FeetScaleHeight;
+	Width = pInfo->m_SkinMetrics.m_Feet.WidthNormalized() * 14.0f * FeetScaleWidth;
+	Height = pInfo->m_SkinMetrics.m_Feet.HeightNormalized() * 12.0f * FeetScaleHeight;
 	FeetOffset.x = pInfo->m_SkinMetrics.m_Feet.OffsetXNormalized() * 64.0f * FeetScaleWidth;
 	FeetOffset.y = pInfo->m_SkinMetrics.m_Feet.OffsetYNormalized() * 32.0f * FeetScaleHeight;
+
+	if (g_Config.m_ClFatSkins)
+	{
+		Width *= 0.18;
+		Height *= 0.18;
+	}
 }
 
 void CRenderTools::GetRenderTeeOffsetToRenderedTee(const CAnimState *pAnim, const CTeeRenderInfo *pInfo, vec2 &TeeOffsetToMid)
@@ -267,7 +273,7 @@ void CRenderTools::RenderTee(const CAnimState *pAnim, const CTeeRenderInfo *pInf
 	vec2 Direction = Dir;
 	vec2 Position = Pos;
 
-	const CSkin::SSkinTextures *pSkinTextures = pInfo->m_CustomColoredSkin ? &pInfo->m_ColorableRenderSkin : &pInfo->m_OriginalRenderSkin;
+	const CSkin::SSkinTextures *pSkinTextures = &pInfo->m_ColorableRenderSkin;
 
 	// first pass we draw the outline
 	// second pass we draw the filling
@@ -284,7 +290,8 @@ void CRenderTools::RenderTee(const CAnimState *pAnim, const CTeeRenderInfo *pInf
 				Graphics()->QuadsSetRotation(pAnim->GetBody()->m_Angle * pi * 2);
 
 				// draw body
-				Graphics()->SetColor(pInfo->m_ColorBody.r, pInfo->m_ColorBody.g, pInfo->m_ColorBody.b, Alpha);
+				//Graphics()->SetColor(pInfo->m_ColorBody.r, pInfo->m_ColorBody.g, pInfo->m_ColorBody.b, Alpha);
+				Graphics()->SetColor(1, 0, 0, Alpha);
 				vec2 BodyPos = Position + vec2(pAnim->GetBody()->m_X, pAnim->GetBody()->m_Y) * AnimScale;
 				float BodyScale;
 				GetRenderTeeBodyScale(BaseSize, BodyScale);
@@ -321,7 +328,7 @@ void CRenderTools::RenderTee(const CAnimState *pAnim, const CTeeRenderInfo *pInf
 						break;
 					}
 
-					float EyeScale = BaseSize * 0.40f;
+					float EyeScale = BaseSize * 0.40f * (g_Config.m_ClFatSkins ? 0.78f : 1.0f);
 					float h = Emote == EMOTE_BLINK ? BaseSize * 0.15f : EyeScale;
 					float EyeSeparation = (0.075f - 0.010f * absolute(Direction.x)) * BaseSize;
 					vec2 Offset = vec2(Direction.x * 0.125f, -0.05f + Direction.y * 0.10f) * BaseSize;
@@ -338,6 +345,12 @@ void CRenderTools::RenderTee(const CAnimState *pAnim, const CTeeRenderInfo *pInf
 			float w = BaseSize;
 			float h = BaseSize / 2;
 
+			if (g_Config.m_ClFatSkins == 1)
+			{
+				w *= 0.78;
+				h *= 0.78;
+			}
+
 			int QuadOffset = 7;
 			if(Dir.x < 0 && pInfo->m_FeetFlipped)
 			{
@@ -353,7 +366,7 @@ void CRenderTools::RenderTee(const CAnimState *pAnim, const CTeeRenderInfo *pInf
 			{
 				++QuadOffset;
 				if(Indicate)
-					ColorScale = 0.5f;
+					ColorScale = 0.0f;
 			}
 
 			Graphics()->SetColor(pInfo->m_ColorFeet.r * ColorScale, pInfo->m_ColorFeet.g * ColorScale, pInfo->m_ColorFeet.b * ColorScale, Alpha);
@@ -372,6 +385,8 @@ void CRenderTools::CalcScreenParams(float Aspect, float Zoom, float *pWidth, flo
 	const float Amount = 1150 * 1000;
 	const float WMax = 1500;
 	const float HMax = 1050;
+
+	Aspect = 16.0 / 10.0;
 
 	const float f = std::sqrt(Amount) / std::sqrt(Aspect);
 	*pWidth = f * Aspect;

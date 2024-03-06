@@ -122,10 +122,10 @@ void CGameClient::OnConsoleInit()
 					      &m_MapSounds,
 					      &m_Background, // render instead of m_MapLayersBackground when g_Config.m_ClOverlayEntities == 100
 					      &m_MapLayersBackground, // first to render
-					      &m_Particles.m_RenderTrail,
-					      &m_Items,
-					      &m_Ghost,
 					      &m_Players,
+					      &m_Items,
+					      &m_Particles.m_RenderTrail,
+					      &m_Ghost,
 					      &m_MapLayersForeground,
 					      &m_Particles.m_RenderExplosions,
 					      &m_NamePlates,
