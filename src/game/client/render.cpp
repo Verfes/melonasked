@@ -386,7 +386,7 @@ void CRenderTools::CalcScreenParams(float Aspect, float Zoom, float *pWidth, flo
 	const float WMax = 1500;
 	const float HMax = 1050;
 
-	Aspect = 16.0 / 10.0;
+	Aspect = 16.0 / 12.0;
 
 	const float f = std::sqrt(Amount) / std::sqrt(Aspect);
 	*pWidth = f * Aspect;
